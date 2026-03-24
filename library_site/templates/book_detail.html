@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-lg-9">
+        <div class="card book-detail-card">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    {% if book.cover_url %}
+                    <img src="{{ book.cover_url }}" class="img-fluid rounded-start" alt="{{ book.title }}">
+                    {% else %}
+                    <div class="img-placeholder h-100 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-book fa-5x"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <span class="category-badge">{{ book.category }}</span>
+                        <h1 class="card-title mt-2">{{ book.title }}</h1>
+                        <p class="card-text"><strong>{{ book.author }}</strong></p>
+                        <p class="card-text">{{ book.description }}</p>
+                        <ul class="list-unstyled mt-3">
+                            <li><i class="fas fa-calendar-alt me-2"></i> Год: {{ book.year }}</li>
+                            <li><i class="fas fa-building me-2"></i> Издательство: {{ book.publisher }}</li>
+                            <li><i class="fas fa-barcode me-2"></i> ISBN: {{ book.isbn or 'не указан' }}</li>
+                            <li><i class="fas fa-copy me-2"></i> Доступно экземпляров: <strong>{{ book.available }}</strong></li>
+                        </ul>
+                        {% if current_user.is_authenticated and current_user.role in ['admin', 'librarian'] %}
+                        <button class="btn btn-primary mt-2 issue-btn" data-book-id="{{ book.id }}" data-book-title="{{ book.title }}" data-bs-toggle="modal" data-bs-target="#issueModal">
+                            <i class="fas fa-hand-holding-heart"></i> Выдать книгу
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Полный текст книги -->
+        <div class="card mt-4">
+            <div class="card-header bg-transparent">
+                <h3 class="mb-0"><i class="fas fa-book-reader me-2"></i>Читать книгу</h3>
+            </div>
+            <div class="card-body">
+                {% if book.content %}
+                    <div class="book-content">
+                        {{ book.content|safe }}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Полный текст книги временно недоступен.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно выдачи -->
+<div class="modal fade" id="issueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Выдача книги</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('issue_book') }}" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="copy_id" id="copy_id">
+                    <p>Книга: <strong id="book_title"></strong></p>
+                    <div class="mb-3">
+                        <label for="library_card" class="form-label">Номер читательского билета</label>
+                        <input type="text" class="form-control" name="library_card" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Выдать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

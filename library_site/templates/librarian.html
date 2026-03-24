@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4 fade-in"><i class="fas fa-tasks me-2"></i>Панель библиотекаря</h1>
+<div class="row fade-in">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">Выдача книги</div>
+            <div class="card-body">
+                <form action="{{ url_for('issue_book') }}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">ID экземпляра книги</label>
+                        <input type="number" class="form-control" name="copy_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Номер читательского билета</label>
+                        <input type="text" class="form-control" name="library_card" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Выдать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">Возврат книги</div>
+            <div class="card-body">
+                <form action="{{ url_for('return_book') }}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">ID выдачи</label>
+                        <input type="number" class="form-control" name="loan_id" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Вернуть</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card fade-in">
+    <div class="card-header">Активные выдачи</div>
+    <div class="card-body">
+        {% if active_loans %}
+        <table class="table">
+            <thead><tr><th>ID</th><th>Книга</th><th>Читатель</th><th>Дата выдачи</th><th>Срок</th></tr></thead>
+            <tbody>{% for loan in active_loans %}<tr><td>{{ loan.id }}</td><td>{{ loan.book_title }}</td><td>{{ loan.reader_name }}</td><td>{{ loan.loan_date }}</td><td>{{ loan.due_date }}</td></tr>{% endfor %}</tbody>
+        </table>
+        {% else %}<p>Нет активных выдач.</p>{% endif %}
+    </div>
+</div>
+{% endblock %}
